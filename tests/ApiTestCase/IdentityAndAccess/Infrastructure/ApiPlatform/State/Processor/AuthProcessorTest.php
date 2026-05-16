@@ -6,7 +6,7 @@ use App\Tests\ApiTestCase\AbstractApiTestCase;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
-class LoginProcessorTest extends AbstractApiTestCase
+class AuthProcessorTest extends AbstractApiTestCase
 {
    use ResetDatabase, Factories;
 
@@ -92,7 +92,6 @@ class LoginProcessorTest extends AbstractApiTestCase
          'headers' => $this->getHeadersContentJson(),
       ]);
 
-      // Returns 422 because phone format requires +243 prefix
       $this->assertResponseStatusCodeSame(422);
    }
 
@@ -221,5 +220,52 @@ class LoginProcessorTest extends AbstractApiTestCase
       ]);
 
       $this->assertResponseStatusCodeSame(422);
+   }
+
+   public function testLogoutSuccess(): void
+   {
+      $email = 'logout@example.com';
+      $this->createUser($email, '+243820110999');
+
+      $token = $this->getToken([
+         'identifier' => $email,
+         'password'  => self::DEFAULT_PASSWORD,
+      ]);
+
+      $logoutResponse = static::createClient()
+         ->request('POST', '/api/auth/logout', [
+            'json' => [],
+            'headers' => [
+               ...$this->getHeadersContentJson(),
+               'Authorization' => "Bearer $token",
+            ],
+         ]);
+
+      $this->assertResponseIsSuccessful();
+      $this->assertResponseStatusCodeSame(200);
+
+      $data = $logoutResponse->toArray();
+      $this->assertArrayHasKey('message', $data);
+   }
+
+   public function testLogoutWithoutTokenShouldFail(): void
+   {
+      static::createClient()->request('POST', '/api/auth/logout', [
+         'headers' => $this->getHeadersContentJson(),
+      ]);
+
+      $this->assertResponseStatusCodeSame(401);
+   }
+
+   public function testLogoutWithInvalidTokenShouldFail(): void
+   {
+      static::createClient()->request('POST', '/api/auth/logout', [
+         'headers' => array_merge(
+            $this->getHeadersContentJson(),
+            ['Authorization' => 'Bearer invalid.token.here']
+         ),
+      ]);
+
+      $this->assertResponseStatusCodeSame(401);
    }
 }

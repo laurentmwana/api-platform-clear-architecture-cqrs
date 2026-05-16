@@ -138,7 +138,7 @@ abstract class AbstractApiTestCase extends ApiTestCase
 
       $response = static::createClient()->request('POST', '/api/auth/login', [
          'json' => $body ?: [
-            'username' => 'admin@example.com',
+            'identifier' => 'admin@example.com',
             'password' => 'password',
          ],
       ]);
