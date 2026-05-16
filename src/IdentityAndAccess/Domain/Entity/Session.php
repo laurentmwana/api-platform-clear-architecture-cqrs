@@ -13,7 +13,8 @@ class Session
    private string $userId;
    private ?string $userAgent = null;
    private ?string $ipAddress = null;
-   private ?DateTimeImmutable $createdAt = null;
+   private ?DateTimeImmutable $loggedOutAt = null;
+   private DateTimeImmutable $createdAt;
 
    public function __construct(
       Uuid $id,
@@ -24,18 +25,28 @@ class Session
    ) {
       $this->id = (string) $id;
       $this->userId = (string) $userId;
-      $this->userAgent = (string) $userAgent;
-      $this->ipAddress = (string) $ipAddress;
+      $this->userAgent = $userAgent?->__toString();
+      $this->ipAddress = $ipAddress?->__toString();
       $this->createdAt = $createdAt ?? new DateTimeImmutable();
    }
 
-   public static function  create(
+   public static function create(
       Uuid $id,
       Uuid $userId,
       ?UserAgent $userAgent = null,
       ?IpAddress $ipAddress = null,
    ): self {
       return new self($id, $userId, $userAgent, $ipAddress);
+   }
+
+   public function markForLogout(): void
+   {
+      $this->loggedOutAt = new DateTimeImmutable();
+   }
+
+   public function isloggedOut(): bool
+   {
+      return $this->loggedOutAt !== null;
    }
 
    public function getId(): Uuid
@@ -50,16 +61,25 @@ class Session
 
    public function getUserAgent(): ?UserAgent
    {
-      return new UserAgent($this->userAgent);
+      return $this->userAgent !== null
+         ? new UserAgent($this->userAgent)
+         : null;
    }
 
    public function getIpAddress(): ?IpAddress
    {
-      return new IpAddress($this->ipAddress);
+      return $this->ipAddress !== null
+         ? new IpAddress($this->ipAddress)
+         : null;
    }
 
-   public function getCreatedAt(): ?DateTimeImmutable
+   public function getCreatedAt(): DateTimeImmutable
    {
       return $this->createdAt;
+   }
+
+   public function getLoggedOutAt(): ?DateTimeImmutable
+   {
+      return $this->loggedOutAt;
    }
 }
