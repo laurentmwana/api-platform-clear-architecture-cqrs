@@ -19,6 +19,7 @@
         <field name="userAgent" column="user_agent" type="text" nullable="true" />
 
         <!-- Dates -->
+        <field name="loggedOutAt" column="logged_out_at" nullable="true" type="datetime_immutable" />
         <field name="createdAt" column="created_at" type="datetime_immutable" />
 
         <!-- Index -->
