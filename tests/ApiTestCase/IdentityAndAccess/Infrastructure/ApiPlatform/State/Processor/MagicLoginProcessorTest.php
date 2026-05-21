@@ -184,8 +184,8 @@ class MagicLoginProcessorTest extends AbstractApiTestCase
       $this->assertResponseStatusCodeSame(200);
 
       $data = $response->toArray();
-      $this->assertArrayHasKey('token', $data);
-      $this->assertNotEmpty($data['token']);
+      $this->assertArrayHasKey('access_token', $data);
+      $this->assertNotEmpty($data['access_token']);
    }
 
    public function testVerifyFailsWithInvalidCode(): void

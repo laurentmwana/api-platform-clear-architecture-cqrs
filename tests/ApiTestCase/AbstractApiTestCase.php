@@ -132,25 +132,27 @@ abstract class AbstractApiTestCase extends ApiTestCase
     */
    protected function getToken(array $body = []): string
    {
-      if ($this->token) {
+      if (null !== $this->token) {
          return $this->token;
       }
 
-      $response = static::createClient()->request('POST', '/api/auth/login', [
-         'json' => $body ?: [
-            'identifier' => 'admin@example.com',
-            'password' => 'password',
-         ],
-      ]);
+      $response = static::createClient()
+         ->request('POST', '/api/auth/login', [
+            'json' => $body ?: [
+               'identifier' => 'admin@example.com',
+               'password' => 'password',
+            ],
+            'headers' => $this->getHeadersContentJson()
+         ]);
 
       $this->assertResponseIsSuccessful();
 
-      /** @var array{token: string} $data */
+      /** @var array{access_token: string, refresh_token: string} $data */
       $data = $response->toArray();
 
-      $this->token = $data['token'];
+      $this->token = $data['access_token'];
 
-      return $data['token'];
+      return $this->token;
    }
 
    protected function clearRateLimitCache(): void

@@ -35,8 +35,10 @@ class AuthProcessorTest extends AbstractApiTestCase
       $this->assertResponseStatusCodeSame(200);
 
       $data = $response->toArray();
-      $this->assertArrayHasKey('token', $data);
-      $this->assertNotEmpty($data['token']);
+      $this->assertArrayHasKey('access_token', $data);
+      $this->assertArrayHasKey('refresh_token', $data);
+      $this->assertNotEmpty($data['access_token']);
+      $this->assertNotEmpty($data['refresh_token']);
    }
 
    public function testLoginSuccessWithPhone(): void
@@ -57,8 +59,8 @@ class AuthProcessorTest extends AbstractApiTestCase
       $this->assertResponseStatusCodeSame(200);
 
       $data = $response->toArray();
-      $this->assertArrayHasKey('token', $data);
-      $this->assertNotEmpty($data['token']);
+      $this->assertArrayHasKey('access_token', $data);
+      $this->assertNotEmpty($data['access_token']);
    }
 
    public function testLoginWithPhoneWithoutPlusShouldFail(): void
@@ -264,6 +266,52 @@ class AuthProcessorTest extends AbstractApiTestCase
             $this->getHeadersContentJson(),
             ['Authorization' => 'Bearer invalid.token.here']
          ),
+      ]);
+
+      $this->assertResponseStatusCodeSame(401);
+   }
+
+   public function testRefreshTokenSuccess(): void
+   {
+      $email = 'refresh@example.com';
+      $this->createUser($email, '+243820110777');
+
+      $loginResponse = static::createClient()->request('POST', '/api/auth/login', [
+         'json' => [
+            'identifier' => $email,
+            'password' => self::DEFAULT_PASSWORD,
+         ],
+         'headers' => $this->getHeadersContentJson(),
+      ]);
+
+      $loginData = $loginResponse->toArray();
+      $this->assertArrayHasKey('refresh_token', $loginData);
+      $refreshToken = $loginData['refresh_token'];
+
+      $refreshResponse = static::createClient()->request('POST', '/api/auth/refresh-token', [
+         'json' => [
+            'refresh_token' => $refreshToken,
+         ],
+         'headers' => $this->getHeadersContentJson(),
+      ]);
+
+      $this->assertResponseIsSuccessful();
+      $this->assertResponseStatusCodeSame(200);
+
+      $refreshData = $refreshResponse->toArray();
+      $this->assertArrayHasKey('token', $refreshData);
+      $this->assertArrayHasKey('refresh_token', $refreshData);
+      $this->assertNotEmpty($refreshData['token']);
+      $this->assertNotEmpty($refreshData['refresh_token']);
+   }
+
+   public function testRefreshTokenWithInvalidTokenShouldFail(): void
+   {
+      static::createClient()->request('POST', '/api/auth/refresh-token', [
+         'json' => [
+            'refresh_token' => 'nonexistent_or_expired_refresh_token_string',
+         ],
+         'headers' => $this->getHeadersContentJson(),
       ]);
 
       $this->assertResponseStatusCodeSame(401);
