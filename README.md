@@ -1,4 +1,4 @@
-# Lopango Backend
+# Demo
 
 > Complete financial and accounting management system designed for landlords to streamline rental tracking, leases, and payments.
 
