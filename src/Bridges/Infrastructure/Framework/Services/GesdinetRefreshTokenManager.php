@@ -3,7 +3,6 @@
 namespace App\Bridges\Infrastructure\Framework\Services;
 
 use App\Bridges\Domain\Services\RefreshTokenManager;
-use App\Bridges\Infrastructure\Persistence\Doctrine\Entity\RefreshToken;
 use App\IdentityAndAccess\Domain\Entity\User;
 use App\IdentityAndAccess\Infrastructure\Framework\Security\SecurityUser;
 use Gesdinet\JWTRefreshTokenBundle\Generator\RefreshTokenGeneratorInterface;
@@ -23,12 +22,8 @@ class GesdinetRefreshTokenManager implements RefreshTokenManager
       $refreshToken = $this->refreshTokenGenerator
          ->createForUserWithTtl($securityUser, $ttl);
 
-      if (! ($refreshToken instanceof RefreshToken)) {
-         throw new \Exception("");
-      }
-
       $this->refreshTokenManager->save($refreshToken);
 
-      return $refreshToken->getRefreshToken();
+      return (string) $refreshToken->getRefreshToken();
    }
 }
