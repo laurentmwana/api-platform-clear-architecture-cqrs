@@ -7,17 +7,49 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
-
+    app.frontend_url: "%env(FRONTEND_URL)%"
 services:
     # default configuration for services in *this* file
     _defaults:
-        autowire: true      # Automatically injects dependencies in your services.
+        autowire: true # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
-
+        bind:
+            string $frontendUrl: "%app.frontend_url%"
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
+    _instanceof:
+        App\SharedContext\Application\Bus\Query\QueryHandler:
+            tags:
+                - { name: messenger.message_handler, bus: "query.bus" }
+
+        App\SharedContext\Application\Bus\Command\CommandHandler:
+            tags:
+                - { name: messenger.message_handler, bus: "command.bus" }
+
+        App\SharedContext\Application\Bus\Message\MessageHandler:
+            tags:
+                - { name: messenger.message_handler, bus: "message.bus" }
+
+        App\SharedContext\Application\Bus\Event\EventHandler:
+            tags:
+                - { name: messenger.message_handler, bus: "event.bus" }
     App\:
-        resource: '../src/'
+        resource: "../src/"
+        exclude:
+            - "../src/**/Infrastructure/Framework/DependencyInjection/*"
+            - "../src/**/Domain/Entity/*"
+            - "../src/**/Domain/ValueObject/*"
+            - "../src/SharedContext/Infrastructure/Framework/Kernel.php"
+
+    app.rate_limiter_locator:
+        class: Symfony\Component\DependencyInjection\ServiceLocator
+        arguments:
+            - default: "@limiter.default_rate_limiter"
+        tags: ["container.service_locator"]
+
+    App\SharedContext\Infrastructure\Framework\Services\SymfonyRateLimiter:
+        arguments:
+            $limiterLocator: "@app.rate_limiter_locator"
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

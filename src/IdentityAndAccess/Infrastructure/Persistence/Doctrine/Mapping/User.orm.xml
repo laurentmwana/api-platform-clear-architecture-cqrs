@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping
+    xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                        https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="App\IdentityAndAccess\Domain\Entity\User"
+            table="users"
+            repository-class="App\IdentityAndAccess\Infrastructure\Persistence\Doctrine\Orm\DoctrineUserRepository">
+
+        <!-- ID UUID en embedded -->
+        <id name="id" column="id" type="string" />
+
+        <!-- Email -->
+        <field name="email" column="email" type="string" unique="true" />
+        <field name="name" column="name" type="string" />
+        <field name="password" column="password" type="string" />
+        <field name="roles" column="roles" type="text" />
+        <field name="phone" column="phone" type="string" unique="true" />
+
+        <!-- Timestamps -->
+        <field name="emailVerifiedAt" column="email_verified_at" type="datetime_immutable" nullable="true"/>
+        <field name="phoneVerifiedAt" column="phone_verified_at" type="datetime_immutable" nullable="true"/>
+        <field name="createdAt" column="created_at" type="datetime_immutable"/>
+        <field name="updatedAt" column="updated_at" type="datetime_immutable"/>
+
+
+    </entity>
+</doctrine-mapping>

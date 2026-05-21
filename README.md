@@ -1,6 +1,6 @@
-# LocMobile Management App
+# Lopango Backend
 
-> Complete rental management application for tracking tenants, rents, leases, and payments.
+> Complete financial and accounting management system designed for landlords to streamline rental tracking, leases, and payments.
 
 [![Symfony](https://img.shields.io/badge/Symfony-8.x-black?logo=symfony)](https://symfony.com)
 [![API Platform](https://img.shields.io/badge/API%20Platform-4.x-blue?logo=api)](https://api-platform.com)
@@ -11,138 +11,116 @@
 
 ---
 
-## Architecture
+## Architectural Design
 
-This project follows **Hexagonal Architecture** (Ports & Adapters), organized by **contexts** (bounded contexts).
+The core system is built on **Hexagonal Architecture** (Ports and Adapters) principles and strictly organized by domain-driven **Bounded Contexts** to decouple business capabilities from delivery mechanisms and infrastructure.
 
 ```
+
 src/
 ├── SharedContext/
-│   ├── Domain/           # Shared domain interfaces, value objects, exceptions
-│   ├── Application/      # Shared ports, DTOs, interfaces
-│   ├── Infrastructure/   # Shared adapters, helpers, base repositories
-│   └── Presentation/     # Shared controllers, middlewares, API resources
+│ ├── Domain/ # Shared abstractions, value objects, domain exceptions
+│ ├── Application/ # Cross-context ports, application-wide interfaces
+│ ├── Infrastructure/ # Shared adapters, cross-cutting concerns, base persistence
+│ └── Presentation/ # Global middlewares, shared API resources
 │
-└── User/
-    ├── Domain/           # User business logic (entities, events, repositories interfaces)
-    ├── Application/      # User use cases, commands, queries, handlers
-    ├── Infrastructure/   # User repositories (Doctrine), mappers, providers
-    └── Presentation/     # User controllers, API Platform resources, serializers
+└── IdentityAndAccess/ # Example of a Bounded Context
+├── Domain/ # Pure business logic (aggregates, entities, domain repository interfaces)
+├── Application/ # Use cases, Command/Query handlers (CQRS), DTOs
+├── Infrastructure/ # Concrete adapters (Doctrine repositories, external APIs, framework services)
+└── Presentation/ # Delivery layer (API Platform resources, custom state processors)
+
 ```
 
-Each context (User, Tenant, Lease, Payment, etc.) follows the same structure:
-
-- **Domain** – Core business logic (entities, value objects, domain events, repository interfaces)
-- **Application** – Use cases, commands, queries, DTOs, ports
-- **Infrastructure** – Concrete implementations (Doctrine repositories, API clients, mappers)
-- **Presentation** – Controllers, API resources, request/response transformers
+Each bounded context (IdentityAndAccess, RentalManagement, Accounting) encapsulates its lifecycle autonomously, communicating through strictly defined domain contracts or asynchronous events.
 
 ---
 
-## Tests
+## Core Requirements
 
-| Suite             | Status |
-| ----------------- | ------ |
-| Unit Tests        | ✅     |
-| Integration Tests | ✅     |
-| Functional Tests  | ✅     |
-
-```bash
-# Run all tests
-bin/phpunit
-
-# Run specific suite
-bin/phpunit tests/Unit
-bin/phpunit tests/Integration
-```
+- **Runtime:** PHP 8.4 or higher
+- **Package Manager:** Composer 2.x
+- **Database Engine:** PostgreSQL or MySQL
+- **Local Tooling:** Symfony CLI, Docker & Docker Compose
 
 ---
 
 ## Quick Start
 
+Follow these steps to set up the development environment locally.
+
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/tenant-app.git
-cd tenant-app
+git clone [https://github.com/laurentmwana/lopango-backend.git](https://github.com/laurentmwana/lopango-backend.git)
+cd lopango-backend
 
 # Install dependencies
 composer install
 
-# Set up database
-bin/console doctrine:database:create
-bin/console doctrine:migrations:migrate
+# Set up local environment variables
+cp .env .env.local
 
-# Load fixtures (optional)
-bin/console doctrine:fixtures:load
+# Run database setup and migrations
+php bin/console doctrine:database:create
+php bin/console doctrine:migrations:migrate
 
-# Start the server
+# Populate the database with development fixtures (optional)
+php bin/console doctrine:fixtures:load --no-interaction
+
+# Boot the local development server
 symfony serve
-```
-
----
-
-## Features
-
-- Tenant management (CRUD)
-- Lease contract tracking
-- Rent collection & history
-- Payment reminders
-- User authentication & roles
-- REST API with API Platform
-- Automatic API documentation (Swagger / OpenAPI)
-
----
-
-## Requirements
-
-- PHP 8.4+
-- Composer
-- Symfony CLI
-- MySQL / PostgreSQL
-- API Platform
-
----
-
-## Project Structure
 
 ```
-.
-├── src/
-│   ├── SharedContext/
-│   │   ├── Domain/
-│   │   ├── Application/
-│   │   ├── Infrastructure/
-│   │   └── Presentation/
-│   │
-│   └── User/
-│       ├── Domain/
-│       ├── Application/
-│       ├── Infrastructure/
-│       └── Presentation/
-│
-├── tests/
-│   ├── Unit/
-│   ├── Integration/
-│   └── Functional/
-├── config/
-├── migrations/
-└── public/
-```
 
 ---
 
-## Docker (optional)
+## Docker Environment
+
+A pre-configured containerized stack is available for standard operations:
 
 ```bash
+# Spin up infrastructure containers
 docker-compose up -d
-docker exec -it tenant-app bash
-composer install
+
+# Execute composer within the app container
+docker compose exec app composer install
+
+```
+
+---
+
+## Capabilities and Features
+
+- **Owner Accounting Engines:** Fine-grained balance tracking, automated ledger balancing, and income-expense categorization.
+- **Lease and Agreement Automation:** Dynamic contract validation, lifecycle tracking, and historical rent tracking.
+- **Secured Identity and Access:** Dual-factor validation flow, robust stateful token emission, and secure refresh-token rotations.
+- **Hypermedia Api Design:** Native OpenAPI/Swagger specification generation via API Platform, featuring clean data pagination, sorting, and filtering adapters.
+
+---
+
+## Testing Framework
+
+Quality assurance is enforced using PHPUnit with isolated environments for distinct validation levels.
+
+| Test Suite      | Focus Range                       | Target                                           |
+| --------------- | --------------------------------- | ------------------------------------------------ |
+| **Unit**        | Pure Domain / Value Objects       | Isolated business rules verification             |
+| **Integration** | Infrastructure / Database Mapping | Adapter compatibility and persistence validation |
+| **Functional**  | Full HTTP API Request / Response  | E2E API Platform endpoint validation             |
+
+```bash
+# Run the complete verification pipeline
+vendor/bin/phpunit
+
+# Isolate execution to a specific testing layer
+vendor/bin/phpunit tests/Unit
+vendor/bin/phpunit tests/Integration
+vendor/bin/phpunit tests/Functional
+
 ```
 
 ---
 
 ## License
 
-MIT
-
----
+This software is released under the terms of the [MIT License](https://www.google.com/search?q=LICENSE).

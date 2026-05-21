@@ -1,0 +1,6 @@
+framework:
+    cache:
+        pools:
+            # On force le cache du rate limiter en mémoire pour les tests
+            cache.rate_limiter:
+                adapter: cache.adapter.array

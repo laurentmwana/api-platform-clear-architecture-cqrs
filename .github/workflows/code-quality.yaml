@@ -1,0 +1,38 @@
+name: Quality Analysis
+
+on:
+    push:
+        branches: [develop]
+    pull_request:
+        branches: [develop]
+
+jobs:
+    quality:
+        name: Quality Analysis
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: "8.4"
+                  tools: composer:v2
+                  extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite
+                  coverage: none
+
+            - name: Get Composer cache dir
+              run: echo "COMPOSER_CACHE_DIR=$(composer config cache-dir)" >> $GITHUB_ENV
+
+            - name: Cache Composer dependencies
+              uses: actions/cache@v4
+              with:
+                  path: ${{ env.COMPOSER_CACHE_DIR }}
+                  key: php8.4-composer-${{ hashFiles('**/composer.lock') }}
+                  restore-keys: |
+                      php8.4-composer-
+
+            - name: Run CI pipeline
+              run: make ci
