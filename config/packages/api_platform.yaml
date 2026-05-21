@@ -1,5 +1,5 @@
 api_platform:
-    title: Backend Locmobile API Platform
+    title: Lopango Backend
     version: 1.0.0
 
     defaults:
@@ -7,16 +7,14 @@ api_platform:
         cache_headers:
             vary: ["Content-Type", "Authorization", "Origin"]
 
+        # The first format listed is the default format used by the API.
+        # Plain JSON is enforced here to prevent Hypermedia pollution (JSON-LD) on auth tokens.
         formats:
-            jsonld: ["application/ld+json"]
             json: ["application/json"]
+            jsonld: ["application/ld+json"]
 
         denormalization_context:
             collect_denormalization_errors: true
-
-    formats:
-        jsonld: ["application/ld+json"]
-        json: ["application/json"]
 
     swagger:
         api_keys:
@@ -24,6 +22,7 @@ api_platform:
                 name: Authorization
                 type: header
 
+    # Clean mapping of Hexagonal Architecture domain exceptions to HTTP status codes
     exception_to_status:
         App\IdentityAndAccess\Domain\Exception\AuthenticationException: 401
         App\IdentityAndAccess\Domain\Exception\UserNotFoundException: 404

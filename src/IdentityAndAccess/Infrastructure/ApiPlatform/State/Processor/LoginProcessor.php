@@ -61,8 +61,8 @@ class LoginProcessor implements ProcessorInterface
          new UserAgent($userAgent)
       );
 
-      $token = $this->commandBus->dispatch($command);
+      $tokens = $this->commandBus->dispatch($command);
 
-      return new JwtTokenOutput($token);
+      return new JwtTokenOutput($tokens);
    }
 }

@@ -51,8 +51,8 @@ class VerifyMagicLoginProcessor implements ProcessorInterface
          $userAgent ? new UserAgent($userAgent) : null,
       );
 
-      $token = $this->commandBus->dispatch($command);
+      $tokens = $this->commandBus->dispatch($command);
 
-      return new JwtTokenOutput($token);
+      return new JwtTokenOutput($tokens);
    }
 }
