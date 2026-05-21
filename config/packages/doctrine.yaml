@@ -21,6 +21,12 @@ doctrine:
                 dir: "%kernel.project_dir%/src/IdentityAndAccess/Infrastructure/Persistence/Doctrine/Mapping"
                 prefix: 'App\IdentityAndAccess\Domain\Entity'
 
+            App\Bridges:
+                type: xml
+                is_bundle: false
+                dir: "%kernel.project_dir%/src/Bridges/Infrastructure/Persistence/Doctrine/Mapping"
+                prefix: App\Bridges\Infrastructure\Persistence\Doctrine\Entity
+
 when@test:
     doctrine:
         dbal:
