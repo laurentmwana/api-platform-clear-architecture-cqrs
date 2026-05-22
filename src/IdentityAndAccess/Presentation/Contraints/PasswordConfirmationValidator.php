@@ -2,7 +2,6 @@
 
 namespace App\IdentityAndAccess\Presentation\Contraints;
 
-use App\IdentityAndAccess\Presentation\Contraints\PasswordConfirmation;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 

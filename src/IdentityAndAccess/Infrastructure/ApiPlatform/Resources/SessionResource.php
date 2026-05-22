@@ -8,7 +8,6 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\OpenApi\Model\MediaType;
 use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
 use ApiPlatform\OpenApi\Model\Response;
-use ApiPlatform\OpenApi\Model\Schema;
 use App\IdentityAndAccess\Infrastructure\ApiPlatform\State\Processor\DeleteSessionProcessor;
 use App\IdentityAndAccess\Infrastructure\ApiPlatform\State\Provider\SessionsProvider;
 use App\SharedContext\Presentation\Input\CurrentPasswordInput;
