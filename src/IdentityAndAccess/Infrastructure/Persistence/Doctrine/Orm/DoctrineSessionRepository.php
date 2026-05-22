@@ -16,7 +16,6 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class DoctrineSessionRepository extends ServiceEntityRepository implements SessionRepository
 {
-
    use DoctrineRepositoryTrait;
 
    public function __construct(ManagerRegistry $registry)
@@ -24,26 +23,40 @@ class DoctrineSessionRepository extends ServiceEntityRepository implements Sessi
       parent::__construct($registry, Session::class);
    }
 
-   public function findByUserId(Uuid $userId): ?Session
+   public function findOneByUserId(Uuid $userId): ?Session
    {
       return $this->findOneBy([
-         'userId' => $userId->value()
+         'userId' => $userId->value(),
       ]);
    }
 
+   /**
+    * @return array<int, Session>
+    */
    public function findAllByUserId(Uuid $userId): array
    {
       return $this->findBy([
-         'userId' => $userId->value()
+         'userId' => $userId->value(),
       ]);
    }
 
-   public function findByUserIdAndDevice(Uuid $userId, IpAddress $ipAddress, UserAgent $userAgent): ?Session
-   {
+   public function findOneByUserIdAndDevice(
+      Uuid $userId,
+      IpAddress $ipAddress,
+      UserAgent $userAgent
+   ): ?Session {
       return $this->findOneBy([
          'userId' => $userId->value(),
          'ipAddress' => $ipAddress->value(),
          'userAgent' => $userAgent->value(),
+      ]);
+   }
+
+   public function findOneByIdAndUserId(Uuid $sessionId, Uuid $userId): ?Session
+   {
+      return $this->findOneBy([
+         'id' => $sessionId->value(),
+         'userId' => $userId->value(),
       ]);
    }
 }

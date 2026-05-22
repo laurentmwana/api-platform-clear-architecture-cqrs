@@ -32,7 +32,7 @@ final class LogoutHandler implements CommandHandler
       if ($userAgent !== null && $ipAddress !== null) {
 
          $session = $this->sessionRepository
-            ->findByUserIdAndDevice(
+            ->findOneByUserIdAndDevice(
                $user->getId(),
                $ipAddress,
                $userAgent

@@ -25,5 +25,5 @@ api_platform:
     # Clean mapping of Hexagonal Architecture domain exceptions to HTTP status codes
     exception_to_status:
         App\IdentityAndAccess\Domain\Exception\AuthenticationException: 401
-        App\IdentityAndAccess\Domain\Exception\UserNotFoundException: 404
         App\SharedContext\Domain\Exception\UnprocessableException: 422
+        App\SharedContext\Domain\Exception\EntityNotFoundException: 404

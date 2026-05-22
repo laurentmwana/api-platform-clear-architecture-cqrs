@@ -3,17 +3,23 @@
 namespace App\IdentityAndAccess\Infrastructure\ApiPlatform\Resources;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\OpenApi\Model\MediaType;
 use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
 use ApiPlatform\OpenApi\Model\Response;
+use ApiPlatform\OpenApi\Model\Schema;
+use App\IdentityAndAccess\Infrastructure\ApiPlatform\State\Processor\DeleteSessionProcessor;
 use App\IdentityAndAccess\Infrastructure\ApiPlatform\State\Provider\SessionsProvider;
+use App\SharedContext\Presentation\Input\CurrentPasswordInput;
+use App\SharedContext\Presentation\Output\MessageOutput;
 use ArrayObject;
 
 #[ApiResource(
    shortName: 'IdentityAndAccess',
    description: 'User Sessions',
    operations: [
+
       new GetCollection(
          uriTemplate: '/auth/sessions',
          name: 'auth_sessions_index',
@@ -33,9 +39,9 @@ use ArrayObject;
                               'type' => 'object',
                               'properties' => [
                                  'id' => ['type' => 'string'],
-                                 'ipAddress' => ['type' => 'string', 'nullable' => true],
-                                 'userAgent' => ['type' => 'string', 'nullable' => true],
-                                 'createdAt' => ['type' => 'string', 'format' => 'date-time'],
+                                 'ip_address' => ['type' => 'string', 'nullable' => true],
+                                 'user_agent' => ['type' => 'string', 'nullable' => true],
+                                 'created_at' => ['type' => 'string', 'format' => 'date-time'],
                               ],
                            ],
                         ])
@@ -47,78 +53,52 @@ use ArrayObject;
                ),
             ]
          )
-      )
+      ),
+
+      new Delete(
+         uriTemplate: '/auth/sessions/{id}',
+         name: 'auth_sessions_delete',
+         processor: DeleteSessionProcessor::class,
+         input: CurrentPasswordInput::class,
+         output: MessageOutput::class,
+         read: false,
+         security: "is_granted('ROLE_USER')",
+         deserialize: true,
+         openapi: new OpenApiOperation(
+            summary: 'Delete a user session',
+            description: 'Delete a specific session. Requires current_password in request body.',
+
+            requestBody: new \ApiPlatform\OpenApi\Model\RequestBody(
+               required: true,
+               content: new ArrayObject([
+                  'application/json' => new MediaType(
+                     new ArrayObject([
+                        'type' => 'object',
+                        'properties' => [
+                           'current_password' => [
+                              'type' => 'string',
+                              'example' => 'secret'
+                           ],
+                        ],
+                        'required' => ['current_password']
+                     ])
+                  )
+               ])
+            ),
+
+            responses: [
+               '204' => new Response(
+                  description: 'Session deleted successfully'
+               ),
+               '401' => new Response(
+                  description: 'Unauthorized'
+               ),
+               '404' => new Response(
+                  description: 'Session not found'
+               ),
+            ]
+         )
+      ),
    ]
 )]
-final class SessionResource
-{
-   private string $id;
-   private string $userId;
-   private ?string $userAgent = null;
-   private ?string $ipAddress = null;
-   private ?string $createdAt = null;
-
-   public function getCreatedAt(): ?string
-   {
-      return $this->createdAt;
-   }
-
-   public function setCreatedAt(string $createdAt): static
-   {
-      $this->createdAt = $createdAt;
-
-      return $this;
-   }
-
-   public function getUserAgent(): ?string
-   {
-      return $this->userAgent;
-   }
-
-
-   public function setUserAgent(?string $userAgent): static
-   {
-      $this->userAgent = $userAgent;
-
-      return $this;
-   }
-
-   public function getIpAddress(): ?string
-   {
-      return $this->ipAddress;
-   }
-
-
-   public function setIpAddress(?string $ipAddress): static
-   {
-      $this->ipAddress = $ipAddress;
-
-      return $this;
-   }
-
-
-   public function getUserId(): string
-   {
-      return $this->userId;
-   }
-
-
-   public function setUserId(string $userId): static
-   {
-      $this->userId = $userId;
-
-      return $this;
-   }
-
-   public function getId(): string
-   {
-      return $this->id;
-   }
-
-   public function setId(string $id): static
-   {
-      $this->id = $id;
-
-      return $this;
-   }
-}
+final class SessionResource {}

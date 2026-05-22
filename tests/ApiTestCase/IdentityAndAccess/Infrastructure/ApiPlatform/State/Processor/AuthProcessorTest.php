@@ -316,4 +316,43 @@ class AuthProcessorTest extends AbstractApiTestCase
 
       $this->assertResponseStatusCodeSame(401);
    }
+
+   public function testDeleteSessionByIdSuccess(): void
+   {
+      $email = 'session.delete@example.com';
+
+      $this->createUser($email, '+243820110555');
+
+      $token = $this->getToken([
+         'identifier' => $email,
+         'password' => self::DEFAULT_PASSWORD,
+      ]);
+
+      $sessionsResponse = static::createClient()->request('GET', '/api/auth/sessions', [
+         'headers' => [
+            ...$this->getHeadersContentJson(),
+            'Authorization' => "Bearer $token",
+         ],
+      ]);
+
+      $this->assertResponseIsSuccessful();
+
+      $sessions = $sessionsResponse->toArray();
+      $this->assertNotEmpty($sessions, 'User should have at least one session');
+
+      $sessionId = $sessions[0]['id'];
+
+      $deleteResponse = static::createClient()->request('DELETE', "/api/auth/sessions/{$sessionId}", [
+         'json' => [
+            'current_password' => self::DEFAULT_PASSWORD,
+         ],
+         'headers' => [
+            ...$this->getHeadersContentJson(),
+            'Authorization' => "Bearer $token",
+         ],
+      ]);
+
+      $this->assertResponseIsSuccessful();
+      $this->assertResponseStatusCodeSame(204);
+   }
 }
