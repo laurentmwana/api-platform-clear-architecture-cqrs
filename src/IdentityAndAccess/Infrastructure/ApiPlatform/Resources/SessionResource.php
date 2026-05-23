@@ -16,7 +16,7 @@ use ArrayObject;
 
 #[ApiResource(
    shortName: 'IdentityAndAccess',
-   description: 'User Sessions',
+   description: 'Features Auth',
    operations: [
 
       new GetCollection(

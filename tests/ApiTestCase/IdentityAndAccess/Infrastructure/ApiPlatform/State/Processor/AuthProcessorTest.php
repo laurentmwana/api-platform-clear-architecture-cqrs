@@ -224,6 +224,123 @@ class AuthProcessorTest extends AbstractApiTestCase
       $this->assertResponseStatusCodeSame(422);
    }
 
+   public function testGetCurrentUserSuccess(): void
+   {
+      $email = 'currentuser@example.com';
+      $phone = '+243820110777';
+
+      $user = $this->createUser($email, $phone);
+
+      $token = $this->getToken([
+         'identifier' => $email,
+         'password' => self::DEFAULT_PASSWORD,
+      ]);
+
+      $response = static::createClient()->request('GET', '/api/auth/me', [
+         'headers' => [
+            ...$this->getHeadersContentJson(),
+            'Authorization' => "Bearer $token",
+         ],
+      ]);
+
+      $this->assertResponseIsSuccessful();
+      $this->assertResponseStatusCodeSame(200);
+
+      $data = $response->toArray();
+
+      $this->assertArrayHasKey('id', $data);
+      $this->assertArrayHasKey('name', $data);
+      $this->assertArrayHasKey('email', $data);
+      $this->assertArrayHasKey('phone', $data);
+      $this->assertArrayHasKey('roles', $data);
+      $this->assertArrayHasKey('email_verified_at', $data);
+      $this->assertArrayHasKey('phone_verified_at', $data);
+      $this->assertArrayHasKey('email_verified', $data);
+      $this->assertArrayHasKey('phone_verified', $data);
+      $this->assertArrayHasKey('created_at', $data);
+      $this->assertArrayHasKey('updated_at', $data);
+
+      $this->assertEquals($user->getEmail()->value(), $data['email']);
+      $this->assertEquals($user->getPhone()->value(), $data['phone']);
+      $this->assertEquals($user->getName()->value(), $data['name']);
+      $this->assertContains('ROLE_USER', $data['roles']);
+   }
+
+   public function testGetCurrentUserWithoutTokenShouldFail(): void
+   {
+      static::createClient()->request('GET', '/api/auth/me', [
+         'headers' => $this->getHeadersContentJson(),
+      ]);
+
+      $this->assertResponseStatusCodeSame(401);
+   }
+
+   public function testGetCurrentUserWithInvalidTokenShouldFail(): void
+   {
+      static::createClient()->request('GET', '/api/auth/me', [
+         'headers' => array_merge(
+            $this->getHeadersContentJson(),
+            ['Authorization' => 'Bearer invalid.token.here']
+         ),
+      ]);
+
+      $this->assertResponseStatusCodeSame(401);
+   }
+
+   public function testGetCurrentUserReturnsCorrectUserData(): void
+   {
+      $email = 'correctuser@example.com';
+      $phone = '+243820110999';
+
+      $this->createUser($email, $phone);
+
+      $token = $this->getToken([
+         'identifier' => $email,
+         'password' => self::DEFAULT_PASSWORD,
+      ]);
+
+      $response = static::createClient()->request('GET', '/api/auth/me', [
+         'headers' => [
+            ...$this->getHeadersContentJson(),
+            'Authorization' => "Bearer $token",
+         ],
+      ]);
+
+      $data = $response->toArray();
+
+      $this->assertNotEquals('wronguser@example.com', $data['email']);
+      $this->assertNotEquals('Wrong Name', $data['name']);
+      $this->assertEquals($email, $data['email']);
+      $this->assertEquals($phone, $data['phone']);
+   }
+
+   public function testGetCurrentUserEmailVerificationStatus(): void
+   {
+      $email = 'unverified@example.com';
+      $phone = '+243820110000';
+
+      $user = $this->createUser($email, $phone);
+
+      $token = $this->getToken([
+         'identifier' => $email,
+         'password' => self::DEFAULT_PASSWORD,
+      ]);
+
+      $response = static::createClient()->request('GET', '/api/auth/me', [
+         'headers' => [
+            ...$this->getHeadersContentJson(),
+            'Authorization' => "Bearer $token",
+         ],
+      ]);
+
+      $data = $response->toArray();
+
+      $this->assertArrayHasKey('email_verified', $data);
+      $this->assertArrayHasKey('email_verified_at', $data);
+      $this->assertFalse($data['email_verified']);
+      $this->assertNull($data['email_verified_at']);
+   }
+
    public function testLogoutSuccess(): void
    {
       $email = 'logout@example.com';

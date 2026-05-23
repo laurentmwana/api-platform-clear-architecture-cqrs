@@ -18,7 +18,7 @@ use ArrayObject;
 
 #[ApiResource(
    shortName: 'IdentityAndAccess',
-   description: 'Identity and Access Management',
+   description: 'Features Auth',
    operations: [
       new Post(
          uriTemplate: '/auth/magic-login',

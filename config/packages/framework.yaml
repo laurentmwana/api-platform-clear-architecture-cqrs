@@ -4,7 +4,10 @@ framework:
 
     # Note that the session will be started ONLY if you read or write from it.
     session: true
-    serializer: { enable_attributes: true }
+    serializer:
+        enable_attributes: true
+        default_context:
+            skip_null_values: false
     #esi: true
     #fragments: true
 

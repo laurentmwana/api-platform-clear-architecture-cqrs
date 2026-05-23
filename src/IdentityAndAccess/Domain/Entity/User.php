@@ -143,4 +143,14 @@ final class User
    {
       return $this->updatedAt;
    }
+
+   public function getPhoneVerifiedAt(): ?DateTimeImmutable
+   {
+      return $this->phoneVerifiedAt;
+   }
+
+   public function getEmailVerifiedAt(): ?DateTimeImmutable
+   {
+      return $this->emailVerifiedAt;
+   }
 }
