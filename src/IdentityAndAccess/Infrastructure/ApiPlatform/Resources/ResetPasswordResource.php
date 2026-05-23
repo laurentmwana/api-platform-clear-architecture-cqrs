@@ -18,7 +18,7 @@ use ArrayObject;
 
 #[ApiResource(
    shortName: 'IdentityAndAccess',
-   description: 'Forgot and reset password',
+   description: 'Features Auth',
    operations: [
       new Post(
          uriTemplate: '/auth/forgot-password',

@@ -19,7 +19,7 @@ use ArrayObject;
 
 #[ApiResource(
    shortName: 'IdentityAndAccess',
-   description: 'Email verification management',
+   description: 'Features Auth',
    operations: [
       new Post(
          uriTemplate: '/auth/email/send-verification',

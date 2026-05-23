@@ -16,7 +16,7 @@ use ArrayObject;
 
 #[ApiResource(
    shortName: 'IdentityAndAccess',
-   description: 'Phone verification management',
+   description: 'Features Auth',
    operations: [
       new Post(
          uriTemplate: '/auth/phone/send-verification',

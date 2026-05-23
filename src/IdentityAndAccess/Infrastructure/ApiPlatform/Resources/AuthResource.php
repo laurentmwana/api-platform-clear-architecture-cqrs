@@ -3,20 +3,24 @@
 namespace App\IdentityAndAccess\Infrastructure\ApiPlatform\Resources;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\MediaType;
 use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
-use ApiPlatform\OpenApi\Model\Response;
 use ApiPlatform\OpenApi\Model\RequestBody;
+use ApiPlatform\OpenApi\Model\Response;
 use App\IdentityAndAccess\Infrastructure\ApiPlatform\State\Processor\LoginProcessor;
 use App\IdentityAndAccess\Infrastructure\ApiPlatform\State\Processor\LogoutProcessor;
+use App\IdentityAndAccess\Infrastructure\ApiPlatform\State\Provider\UserMeProvider;
 use App\IdentityAndAccess\Presentation\Input\LoginInput;
 use App\IdentityAndAccess\Presentation\Output\LogoutOutput;
+use App\IdentityAndAccess\Presentation\Output\UserMeOutput;
 use ArrayObject;
+use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 #[ApiResource(
    shortName: 'IdentityAndAccess',
-   description: 'Auth User',
+   description: 'Features Auth',
    operations: [
       new Post(
          uriTemplate: '/auth/login',
@@ -128,6 +132,43 @@ use ArrayObject;
             ]
          ),
       ),
+      new Get(
+         uriTemplate: '/auth/me',
+         name: 'auth_me',
+         provider: UserMeProvider::class,
+         output: UserMeOutput::class,
+         security: "is_granted('ROLE_USER')",
+         openapi: new OpenApiOperation(
+            summary: 'Get current authenticated user',
+            description: 'Returns the profile of the currently logged-in user',
+            responses: [
+               '200' => new Response(
+                  description: 'User profile retrieved',
+                  content: new ArrayObject([
+                     'application/json' => new MediaType(
+                        new ArrayObject([
+                           'type' => 'object',
+                           'properties' => [
+                              'id' => ['type' => 'string'],
+                              'name' => ['type' => 'string'],
+                              'roles' => ['type' => 'array'],
+                              'email' => ['type' => 'string'],
+                              'phone' => ['type' => 'string', 'nullable' => true],
+                              'email_verified' => ['type' => 'boolean'],
+                              'phone_verified' => ['type' => 'boolean'],
+                              'email_verified_at' => ['type' => 'datetime', 'nullable' => true],
+                              'phone_verified_at' => ['type' => 'datetime', 'nullable' => true],
+                              'created_at' => ['type' => 'datetime'],
+                              'updated_at' => ['type' => 'datetime'],
+                           ],
+                        ])
+                     ),
+                  ])
+               ),
+               '401' => new Response(description: 'Not authenticated'),
+            ]
+         ),
+      )
    ]
 )]
 final class AuthResource {}
